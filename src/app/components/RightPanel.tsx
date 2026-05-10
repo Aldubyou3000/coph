@@ -1,19 +1,32 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// RightPanel.tsx
+// Right telemetry panel: heat index display, formula validation info,
+// unit conversions, QC daily forecast graph, and PAGASA threshold legend.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { motion } from "motion/react";
-import { FORECAST, interpolateForecast } from "./heatUtils";
 
 interface RightPanelProps {
-  heatIndex: number;
-  timeOfDay: number;
+  heatIndex:   number;
   temperature: number;
+  humidity:    number;
+  subject:     any; // From SUBJECTS array
 }
 
+// ── Shared stat box ───────────────────────────────────────────────────────────
 function StatBox({ label, value }: { label: string; value: string }) {
   return (
     <div
       className="rounded-xl p-3"
-      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+      style={{
+        background: "rgba(255,255,255,0.05)",
+        border:     "1px solid rgba(255,255,255,0.08)",
+      }}
     >
-      <div className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: "rgba(0,229,255,0.6)" }}>
+      <div
+        className="text-xs font-bold tracking-widest uppercase mb-1"
+        style={{ color: "rgba(0,229,255,0.6)" }}
+      >
         {label}
       </div>
       <div className="font-black text-lg text-white">{value}</div>
@@ -21,175 +34,260 @@ function StatBox({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ForecastGraph({ timeOfDay }: { timeOfDay: number }) {
-  const W = 200, H = 80;
-  const tempMin = 25, tempMax = 44;
-  const hrMin = 6, hrMax = 18;
-
-  const toX = (h: number) => ((h - hrMin) / (hrMax - hrMin)) * W;
-  const toY = (t: number) => H - ((t - tempMin) / (tempMax - tempMin)) * H;
-
-  // Build smooth cubic bezier path
-  const pts = FORECAST.map((d) => ({ x: toX(d.hour), y: toY(d.temp) }));
-  let pathD = `M ${pts[0].x} ${pts[0].y}`;
-  for (let i = 1; i < pts.length; i++) {
-    const p0 = pts[i - 1], p1 = pts[i];
-    const cp1x = p0.x + (p1.x - p0.x) * 0.4;
-    const cp2x = p1.x - (p1.x - p0.x) * 0.4;
-    pathD += ` C ${cp1x} ${p0.y} ${cp2x} ${p1.y} ${p1.x} ${p1.y}`;
-  }
-  const areaD = `${pathD} L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`;
-
-  const curH = Math.max(hrMin, Math.min(hrMax, timeOfDay));
-  const curT = interpolateForecast(curH);
-  const curX = toX(curH);
-  const curY = toY(curT);
-
-  const hourLabels = [
-    { h: 6, l: "6AM" }, { h: 9, l: "9AM" }, { h: 12, l: "12PM" },
-    { h: 15, l: "3PM" }, { h: 18, l: "6PM" },
-  ];
-
+// ── Stress Profile Visualizer ─────────────────────────────────────────────────
+function StressProfile({ subject }: { subject: any }) {
+  const { burden, tolerance } = subject;
+  
   return (
-    <div>
-      <svg width="100%" viewBox={`0 0 ${W} ${H + 16}`} style={{ overflow: "visible" }}>
-        <defs>
-          <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#FF6B00" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#FF6B00" stopOpacity="0" />
-          </linearGradient>
-          <filter id="glowFilter">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
-        </defs>
-        {/* Grid lines */}
-        {[0, 25, 50, 75, 100].map((pct) => (
-          <line key={pct} x1="0" y1={H * (pct / 100)} x2={W} y2={H * (pct / 100)}
-            stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-        ))}
-        {/* Area fill */}
-        <path d={areaD} fill="url(#areaGrad)" />
-        {/* Curve */}
-        <motion.path
-          d={pathD} fill="none" stroke="#FF6B00" strokeWidth="2.5" strokeLinecap="round"
-          filter="url(#glowFilter)"
-          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.5 }}
-        />
-        {/* Data points */}
-        {FORECAST.map((d) => (
-          <circle key={d.hour} cx={toX(d.hour)} cy={toY(d.temp)} r="3"
-            fill="#FF6B00" stroke="rgba(10,22,40,0.8)" strokeWidth="1.5" />
-        ))}
-        {/* Current time vertical indicator */}
-        <motion.line
-          x1={curX} y1="0" x2={curX} y2={H}
-          stroke="#00E5FF" strokeWidth="1.5" strokeDasharray="3,3"
-          animate={{ x1: curX, x2: curX }}
-          transition={{ type: "spring", stiffness: 80 }}
-        />
-        {/* Current position dot */}
-        <motion.circle
-          cx={curX} cy={curY} r="5"
-          fill="#00E5FF" stroke="rgba(10,22,40,0.8)" strokeWidth="2"
-          animate={{ cx: curX, cy: curY, r: [5, 6.5, 5] }}
-          transition={{ cx: { type: "spring", stiffness: 80 }, cy: { type: "spring", stiffness: 80 }, r: { duration: 1.5, repeat: Infinity } }}
-          style={{ filter: "drop-shadow(0 0 6px rgba(0,229,255,0.9))" }}
-        />
-        {/* Temp label at current */}
-        <motion.text
-          x={curX + 6} y={curY - 4}
-          fontSize="7" fill="#00E5FF" fontWeight="bold"
-          animate={{ x: curX + 6, y: curY - 4 }}
-          transition={{ type: "spring", stiffness: 80 }}
-        >
-          {curT.toFixed(0)}°C
-        </motion.text>
-        {/* X-axis labels */}
-        {hourLabels.map(({ h, l }) => (
-          <text key={h} x={toX(h)} y={H + 13} fontSize="7"
-            fill="rgba(255,255,255,0.35)" textAnchor="middle"
-          >
-            {l}
-          </text>
-        ))}
-        {/* Peak marker */}
-        <text x={toX(15)} y={toY(41) - 6} fontSize="7" fill="#FF6B00" textAnchor="middle" fontWeight="bold">
-          Peak 41°C
-        </text>
-      </svg>
+    <div
+      className="rounded-2xl p-4 flex flex-col gap-4"
+      style={{
+        background:    "rgba(15,29,51,0.7)",
+        backdropFilter:"blur(12px)",
+        border:        "1px solid rgba(255,255,255,0.06)",
+      }}
+    >
+      <div className="text-[10px] font-black tracking-widest uppercase text-[#00E5FF] opacity-70">
+        Physiological Stress Profile
+      </div>
+      
+      <div className="flex flex-col gap-4">
+        {/* Burden Indicator */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex justify-between items-center text-[10px] font-bold text-red-400 uppercase">
+            <span>Heat Burden</span>
+            <span>+{burden.toFixed(1)}°C</span>
+          </div>
+          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-red-600 to-orange-400"
+              initial={{ width: 0 }}
+              animate={{ width: `${(burden / 5) * 100}%` }}
+            />
+          </div>
+          <div className="text-[9px] text-white/40 italic leading-tight">
+            PPE / METABOLISM / RADIANT HEAT
+          </div>
+        </div>
+
+        {/* Tolerance Indicator */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex justify-between items-center text-[10px] font-bold text-emerald-400 uppercase">
+            <span>Heat Tolerance</span>
+            <span>-{tolerance.toFixed(1)}°C</span>
+          </div>
+          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-emerald-600 to-teal-400"
+              initial={{ width: 0 }}
+              animate={{ width: `${(tolerance / 5) * 100}%` }}
+            />
+          </div>
+          <div className="text-[9px] text-white/40 italic leading-tight">
+            ACCLIMATIZATION / CONDITIONING
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-export function RightPanel({ heatIndex, timeOfDay, temperature }: RightPanelProps) {
+// ── Formula validation info panel ─────────────────────────────────────────────
+function FormulaInfo({
+  temperature,
+  humidity,
+  heatIndex,
+}: {
+  temperature: number;
+  humidity:    number;
+  heatIndex:   number;
+}) {
+  const formulaActive = temperature >= 27 && humidity >= 25;
+  const delta         = heatIndex - temperature;
+
+  return (
+    <div
+      className="rounded-xl p-3 mt-2"
+      style={{
+        background: "rgba(255,255,255,0.03)",
+        border:     "1px solid rgba(255,255,255,0.06)",
+        fontSize:   11,
+      }}
+    >
+      <div
+        className="text-xs font-bold tracking-widest uppercase mb-2"
+        style={{ color: "rgba(0,229,255,0.5)" }}
+      >
+        Formula Status
+      </div>
+
+      <div className="flex justify-between items-center mb-1">
+        <span style={{ color: "rgba(255,255,255,0.45)" }}>Rothfusz valid</span>
+        <span
+          className="font-bold"
+          style={{ color: formulaActive ? "#00FF88" : "#FFD700" }}
+        >
+          {formulaActive ? "YES" : "Below threshold"}
+        </span>
+      </div>
+
+      {!formulaActive && (
+        <div className="mb-1" style={{ color: "rgba(255,200,0,0.6)", fontSize: 10 }}>
+          {temperature < 27
+            ? "T < 27°C — apparent temp ≈ ambient"
+            : "RH < 25% — evaporation too efficient"}
+        </div>
+      )}
+
+      <div className="flex justify-between items-center mb-1">
+        <span style={{ color: "rgba(255,255,255,0.45)" }}>Feels hotter by</span>
+        <span className="font-bold" style={{ color: "rgba(0,229,255,0.8)" }}>
+          +{delta.toFixed(1)}°C
+        </span>
+      </div>
+
+      <div className="flex justify-between items-center">
+        <span style={{ color: "rgba(255,255,255,0.45)" }}>Apparent temp</span>
+        <span className="font-bold" style={{ color: "#FF6B00" }}>
+          {heatIndex.toFixed(2)}°C
+        </span>
+      </div>
+    </div>
+  );
+}
+
+
+// ── PAGASA threshold legend ───────────────────────────────────────────────────
+function PageasaLegend() {
+  const levels = [
+    { range: "< 27°C",    label: "SAFE",            color: "#00FF88" },
+    { range: "27–32°C",   label: "CAUTION",         color: "#FFD700" },
+    { range: "33–41°C",   label: "EXTREME CAUTION", color: "#FF8C00" },
+    { range: "42–51°C",   label: "DANGER",          color: "#FF4400" },
+    { range: "≥ 52°C",    label: "EXTREME DANGER",  color: "#FF0033" },
+  ];
+
+  return (
+    <div
+      className="rounded-2xl p-4"
+      style={{
+        background:    "rgba(15,29,51,0.7)",
+        backdropFilter:"blur(12px)",
+        border:        "1px solid rgba(255,255,255,0.06)",
+      }}
+    >
+      <div
+        className="text-xs font-bold tracking-widest uppercase mb-3"
+        style={{ color: "#00E5FF" }}
+      >
+        PAGASA Thresholds
+      </div>
+      {levels.map(({ range, label, color }) => (
+        <div
+          key={label}
+          className="flex items-center gap-2 mb-1.5"
+        >
+          <div
+            style={{
+              width: 8, height: 8, borderRadius: "50%",
+              background: color, flexShrink: 0,
+              boxShadow: `0 0 4px ${color}88`,
+            }}
+          />
+          <span className="text-xs flex-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+            {range}
+          </span>
+          <span className="text-xs font-bold" style={{ color }}>
+            {label}
+          </span>
+        </div>
+      ))}
+      <p className="mt-2" style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", lineHeight: 1.5 }}>
+        Source: PAGASA Heat Index Advisory (2023) &amp; DOLE D.O. 102-10
+      </p>
+    </div>
+  );
+}
+
+// ── Main Export ───────────────────────────────────────────────────────────────
+export function RightPanel({ heatIndex, temperature, humidity, subject }: RightPanelProps) {
   const hiF = heatIndex * 9 / 5 + 32;
   const hiK = heatIndex + 273.15;
   const hiR = hiF + 459.67;
 
   return (
-    <div className="flex flex-col gap-3 h-full" style={{ minWidth: 0 }}>
-      {/* Header */}
-      <div className="text-xs font-black tracking-widest uppercase pb-1" style={{ color: "rgba(0,229,255,0.6)", borderBottom: "1px solid rgba(0,229,255,0.15)" }}>
+    <div className="flex flex-col gap-3 h-full overflow-y-auto pr-1" style={{ minWidth: 0 }}>
+
+      <div
+        className="text-xs font-black tracking-widest uppercase pb-1"
+        style={{ color: "rgba(0,229,255,0.6)", borderBottom: "1px solid rgba(0,229,255,0.15)" }}
+      >
         Telemetry HUD
       </div>
 
-      {/* Heat Index Main */}
       <div
         className="rounded-2xl p-4"
-        style={{ background: "rgba(15,29,51,0.7)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,107,0,0.2)" }}
+        style={{
+          background:    "rgba(15,29,51,0.7)",
+          backdropFilter:"blur(12px)",
+          border:        "1px solid rgba(255,107,0,0.2)",
+        }}
       >
-        <div className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "#00E5FF" }}>
+        <div
+          className="text-xs font-bold tracking-widest uppercase mb-2"
+          style={{ color: "#00E5FF" }}
+        >
           Heat Index
         </div>
+
         <motion.div
           key={Math.round(heatIndex * 10)}
           className="font-black"
           initial={{ scale: 1.08 }}
           animate={{ scale: 1 }}
           style={{
-            fontSize: "clamp(2rem, 4vw, 3rem)",
-            color: "#FF6B00",
+            fontSize:   "clamp(2rem, 4vw, 3rem)",
+            color:      "#FF6B00",
             textShadow: "0 0 25px rgba(255,107,0,0.8), 0 0 50px rgba(255,107,0,0.4)",
           }}
         >
           {heatIndex.toFixed(1)}
           <span className="text-2xl" style={{ color: "rgba(255,107,0,0.7)" }}>°C</span>
         </motion.div>
+
+        <FormulaInfo
+          temperature={temperature}
+          humidity={humidity}
+          heatIndex={heatIndex}
+        />
       </div>
 
-      {/* Unit Conversion Grid */}
       <div
         className="rounded-2xl p-4"
-        style={{ background: "rgba(15,29,51,0.7)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.06)" }}
+        style={{
+          background:    "rgba(15,29,51,0.7)",
+          backdropFilter:"blur(12px)",
+          border:        "1px solid rgba(255,255,255,0.06)",
+        }}
       >
-        <div className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "#00E5FF" }}>
+        <div
+          className="text-xs font-bold tracking-widest uppercase mb-3"
+          style={{ color: "#00E5FF" }}
+        >
           Unit Conversions
         </div>
         <div className="grid grid-cols-2 gap-2">
           <StatBox label="Fahrenheit" value={`${hiF.toFixed(1)}°F`} />
-          <StatBox label="Kelvin" value={`${hiK.toFixed(1)} K`} />
-          <StatBox label="Rankine" value={`${hiR.toFixed(1)}°R`} />
-          <StatBox label="Ambient" value={`${temperature}°C`} />
+          <StatBox label="Kelvin"     value={`${hiK.toFixed(1)} K`} />
+          <StatBox label="Rankine"    value={`${hiR.toFixed(1)}°R`} />
+          <StatBox label="Ambient"    value={`${temperature}°C`}    />
         </div>
       </div>
 
-      {/* Daily Forecast */}
-      <div
-        className="rounded-2xl p-4 flex-1"
-        style={{ background: "rgba(15,29,51,0.7)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.06)" }}
-      >
-        <div className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "#00E5FF" }}>
-          Daily Forecast — Quezon City
-        </div>
-        <ForecastGraph timeOfDay={timeOfDay} />
-        <div className="mt-2 flex items-center gap-2 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-          <div className="w-3 h-px" style={{ background: "#00E5FF" }} />
-          <span>Current time</span>
-          <div className="w-3 h-px ml-2" style={{ background: "#FF6B00" }} />
-          <span>Forecast</span>
-        </div>
-      </div>
+      <PageasaLegend />
+      
+      {/* Moved Stress Profile — specifically requested under the Legend */}
+      <StressProfile subject={subject} />
     </div>
   );
 }

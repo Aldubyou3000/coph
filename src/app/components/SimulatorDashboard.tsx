@@ -1,30 +1,38 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { motion } from "motion/react";
 import { Home } from "lucide-react";
 import { LeftPanel } from "./LeftPanel";
 import { CenterPanel } from "./CenterPanel";
 import { RightPanel } from "./RightPanel";
-import { calcHeatIndex, getRisk } from "./heatUtils";
+import { calcHeatIndex, getRisk, SUBJECTS } from "./heatUtils";
 
 interface SimulatorDashboardProps {
   onBack?: () => void;
+  temperature: number;
+  setTemperature: (v: number) => void;
+  humidity: number;
+  setHumidity: (v: number) => void;
+  selectedSubject: number;
+  setSelectedSubject: (v: number) => void;
 }
 
-export function SimulatorDashboard({ onBack }: SimulatorDashboardProps) {
-  const [temperature, setTemperature] = useState(28);
-  const [humidity, setHumidity] = useState(55);
-  const [timeOfDay, setTimeOfDay] = useState(13);
-  const [selectedSubject, setSelectedSubject] = useState(0);
+export function SimulatorDashboard({ 
+  onBack,
+  temperature, setTemperature,
+  humidity, setHumidity,
+  selectedSubject, setSelectedSubject
+}: SimulatorDashboardProps) {
 
+  const subjectData = SUBJECTS[selectedSubject];
   const heatIndex = calcHeatIndex(temperature, humidity);
-  const risk = getRisk(heatIndex);
+  const risk = getRisk(heatIndex, subjectData.burden, subjectData.tolerance);
 
   return (
     <div
       className="size-full relative overflow-hidden flex flex-col"
       style={{ background: "linear-gradient(160deg, #0A1628 0%, #0D2B3E 60%, #0A1628 100%)" }}
     >
-      {/* Hex grid background */}
+      {/* ... hex grid ... */}
       <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.12 }}>
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -44,7 +52,6 @@ export function SimulatorDashboard({ onBack }: SimulatorDashboardProps) {
         className="relative z-20 flex items-center justify-between px-6 py-3 flex-shrink-0"
         style={{ borderBottom: "1px solid rgba(0,229,255,0.1)", background: "rgba(10,22,40,0.6)", backdropFilter: "blur(10px)" }}
       >
-        {/* Back button */}
         {onBack && (
           <motion.button
             onClick={onBack}
@@ -62,16 +69,14 @@ export function SimulatorDashboard({ onBack }: SimulatorDashboardProps) {
           </motion.button>
         )}
 
-        {/* Title */}
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
           <div className="w-2 h-2 rounded-full" style={{ background: "#FF6B00", boxShadow: "0 0 8px rgba(255,107,0,0.9)" }} />
-          <h1 className="font-black tracking-widest text-sm uppercase" style={{ color: "rgba(255,255,255,0.9)" }}>
+          <h1 className="font-black tracking-widest text-xs sm:text-sm uppercase text-center" style={{ color: "rgba(255,255,255,0.9)" }}>
             QC Heat Risk Monitor
           </h1>
           <div className="w-2 h-2 rounded-full" style={{ background: "#FF6B00", boxShadow: "0 0 8px rgba(255,107,0,0.9)" }} />
         </div>
 
-        {/* Live indicator */}
         <div className="flex items-center gap-2 ml-auto">
           <motion.div
             className="w-2 h-2 rounded-full"
@@ -79,27 +84,24 @@ export function SimulatorDashboard({ onBack }: SimulatorDashboardProps) {
             animate={{ opacity: [1, 0.3, 1] }}
             transition={{ duration: 1.2, repeat: Infinity }}
           />
-          <span className="text-xs font-bold" style={{ color: "rgba(0,255,136,0.8)" }}>LIVE</span>
-          <span className="text-xs ml-4 font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>
-            HI: {heatIndex.toFixed(1)}°C
-          </span>
+          <span className="text-[10px] sm:text-xs font-bold" style={{ color: "rgba(0,255,136,0.8)" }}>LIVE</span>
         </div>
       </div>
 
-      {/* Main 3-Column Layout */}
-      <div className="relative z-10 flex-1 flex gap-4 p-4 overflow-hidden" style={{ minHeight: 0 }}>
-        {/* LEFT — 24% */}
-        <div className="overflow-y-auto" style={{ width: "24%", flexShrink: 0 }}>
+      {/* Main Layout - Stacks on mobile, Side-by-side on large screens */}
+      <div className="relative z-10 flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-y-auto lg:overflow-hidden">
+        
+        {/* LEFT — Environment Controls */}
+        <div className="w-full lg:w-[24%] lg:overflow-y-auto lg:flex-shrink-0 order-2 lg:order-1">
           <LeftPanel
             temperature={temperature} setTemperature={setTemperature}
             humidity={humidity} setHumidity={setHumidity}
-            timeOfDay={timeOfDay} setTimeOfDay={setTimeOfDay}
             selectedSubject={selectedSubject} setSelectedSubject={setSelectedSubject}
           />
         </div>
 
-        {/* CENTER — flex-1 */}
-        <div className="flex-1 overflow-hidden" style={{ minWidth: 0 }}>
+        {/* CENTER — Visual Display */}
+        <div className="flex-1 min-h-[400px] lg:min-h-0 lg:overflow-hidden order-1 lg:order-2">
           <CenterPanel
             risk={risk}
             selectedSubject={selectedSubject}
@@ -109,11 +111,18 @@ export function SimulatorDashboard({ onBack }: SimulatorDashboardProps) {
           />
         </div>
 
-        {/* RIGHT — 26% */}
-        <div className="overflow-y-auto" style={{ width: "26%", flexShrink: 0 }}>
-          <RightPanel heatIndex={heatIndex} timeOfDay={timeOfDay} temperature={temperature} />
+        {/* RIGHT — Telemetry HUD */}
+        <div className="w-full lg:w-[26%] lg:overflow-y-auto lg:flex-shrink-0 order-3">
+          <RightPanel 
+            heatIndex={heatIndex} 
+            temperature={temperature}
+            humidity={humidity}
+            subject={subjectData}
+          />
         </div>
       </div>
     </div>
   );
 }
+
+

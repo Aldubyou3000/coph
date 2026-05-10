@@ -1,3 +1,16 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Characters.tsx
+// SVG character illustrations for the QC Heat Risk Monitor.
+// Each character is a pure SVG component — no external assets needed.
+//
+// Characters:
+//   ConstructionWorker  — orange safety vest, hard hat, water bottle
+//   TrafficEnforcer     — navy uniform, reflective vest, whistle
+//   Student             — white polo, navy shorts, DepEd patch, backpack
+//   StreetVendor        — apron, food cart, cap
+//   Civilian (NEW)      — casual t-shirt, khaki pants, hand fan
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function ConstructionWorker() {
   return (
     <svg viewBox="0 0 120 220" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -18,7 +31,7 @@ export function ConstructionWorker() {
       <circle cx="53" cy="61" r="0.6" fill="white" />
       <circle cx="69" cy="61" r="0.6" fill="white" />
       <path d="M52 72 Q60 78 68 72" fill="none" stroke="#333" strokeWidth="1.8" strokeLinecap="round" />
-      {/* Ear */}
+      {/* Ears */}
       <ellipse cx="41" cy="64" rx="4" ry="5" fill="#D4956A" />
       <ellipse cx="79" cy="64" rx="4" ry="5" fill="#D4956A" />
       {/* Neck */}
@@ -169,7 +182,7 @@ export function Student() {
       <rect x="62" y="210" width="32" height="10" fill="#111" rx="3" />
       <rect x="28" y="214" width="28" height="4" fill="#FFF" rx="1" opacity="0.3" />
       <rect x="64" y="214" width="28" height="4" fill="#FFF" rx="1" opacity="0.3" />
-      {/* Red Backpack (right side) */}
+      {/* Red Backpack */}
       <rect x="84" y="95" width="22" height="32" fill="#CC2200" rx="4" />
       <rect x="86" y="97" width="18" height="14" fill="#AA1800" rx="2" />
       <rect x="88" y="113" width="14" height="12" fill="#BB1F00" rx="2" />
@@ -214,7 +227,7 @@ export function StreetVendor() {
       <path d="M50 93 L60 81 L70 93" fill="none" stroke="#CCC" strokeWidth="2" />
       {/* Apron pocket */}
       <rect x="48" y="140" width="24" height="16" fill="#EEE" stroke="#CCC" strokeWidth="1" rx="2" />
-      {/* Arms (bare, with apron covering) */}
+      {/* Arms */}
       <path d="M32 93 L18 158 Q16 165 22 167 L30 167 L40 105 Z" fill="#C68642" />
       <path d="M88 93 L102 158 Q104 165 98 167 L90 167 L80 105 Z" fill="#C68642" />
       {/* Hands */}
@@ -223,10 +236,10 @@ export function StreetVendor() {
       {/* Dark pants */}
       <path d="M34 175 L32 210 L58 210 L60 192 L62 210 L88 210 L86 175 Z" fill="#3D2B1A" />
       <line x1="60" y1="175" x2="60" y2="210" stroke="#2A1A0A" strokeWidth="1.5" />
-      {/* Sandals / shoes */}
+      {/* Sandals */}
       <rect x="30" y="207" width="29" height="11" fill="#5C3A1A" rx="3" />
       <rect x="61" y="207" width="29" height="11" fill="#5C3A1A" rx="3" />
-      {/* Food Cart beside vendor */}
+      {/* Food Cart */}
       <rect x="90" y="140" width="26" height="20" fill="#CC2200" rx="3" />
       <rect x="88" y="134" width="30" height="8" fill="#AA1800" rx="2" />
       {/* Cart items */}
@@ -239,6 +252,69 @@ export function StreetVendor() {
       <circle cx="110" cy="162" r="2" fill="#555" />
       {/* Cart handle */}
       <line x1="90" y1="140" x2="90" y2="175" stroke="#8B6914" strokeWidth="3" />
+    </svg>
+  );
+}
+
+// ── NEW CHARACTER ─────────────────────────────────────────────────────────────
+/**
+ * Civilian — generic casual pedestrian / office worker.
+ * Wears a light blue T-shirt, khaki pants, and sneakers.
+ * Holds a hand fan (culturally relevant heat-coping accessory in PH).
+ * The fan can be animated by CenterPanel when heat ≥ CAUTION.
+ */
+export function Civilian() {
+  return (
+    <svg viewBox="0 0 120 220" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      {/* Short hair */}
+      <path d="M42 55 Q40 32 60 28 Q80 32 78 55 L75 56 Q60 40 45 56 Z" fill="#8B5E3C" />
+      {/* Head */}
+      <ellipse cx="60" cy="68" rx="19" ry="22" fill="#FDBF94" />
+      <ellipse cx="60" cy="82" rx="13" ry="7" fill="#E8A07A" opacity="0.3" />
+      {/* Ears */}
+      <ellipse cx="41" cy="68" rx="4" ry="5" fill="#F0A87A" />
+      <ellipse cx="79" cy="68" rx="4" ry="5" fill="#F0A87A" />
+      {/* Eyes */}
+      <ellipse cx="52" cy="65" rx="2.8" ry="3" fill="white" />
+      <ellipse cx="68" cy="65" rx="2.8" ry="3" fill="white" />
+      <circle cx="52.5" cy="65.5" r="1.5" fill="#333" />
+      <circle cx="68.5" cy="65.5" r="1.5" fill="#333" />
+      <circle cx="53" cy="65" r="0.6" fill="white" />
+      <circle cx="69" cy="65" r="0.6" fill="white" />
+      {/* Smile */}
+      <path d="M53 76 Q60 82 67 76" fill="none" stroke="#555" strokeWidth="1.8" strokeLinecap="round" />
+      {/* Neck */}
+      <rect x="54" y="88" width="12" height="9" fill="#FDBF94" rx="3" />
+      {/* Light blue casual T-shirt */}
+      <path d="M30 97 L24 178 L96 178 L90 97 Z" fill="#5B9BD5" />
+      {/* Collar */}
+      <path d="M50 97 L55 106 L60 97 L65 106 L70 97" fill="none" stroke="#4A88C0" strokeWidth="2" />
+      {/* Chest logo area */}
+      <rect x="52" y="114" width="16" height="12" fill="#4A88C0" rx="2" />
+      <text x="60" y="123" textAnchor="middle" fill="rgba(255,255,255,0.7)" fontSize="5" fontWeight="bold">QC</text>
+      {/* Arms — short sleeves so skin shows at forearm */}
+      <path d="M30 97 L14 152 Q13 160 19 161 L28 161 L40 110 Z" fill="#FDBF94" />
+      <path d="M90 97 L106 152 Q107 160 101 161 L92 161 L80 110 Z" fill="#FDBF94" />
+      {/* Hands */}
+      <ellipse cx="15" cy="163" rx="7" ry="5" fill="#F0A87A" />
+      <ellipse cx="105" cy="163" rx="7" ry="5" fill="#F0A87A" />
+      {/* Hand fan (right hand — heat-coping accessory) */}
+      <path d="M98 148 Q113 138 115 155 Q113 168 98 163 Z" fill="#FF9900" opacity="0.9" />
+      <path d="M98 148 Q115 140 116 154 Q115 167 98 163 Z" fill="none" stroke="#CC7700" strokeWidth="1" />
+      {/* Fan ribs */}
+      <line x1="98" y1="155" x2="112" y2="145" stroke="#CC7700" strokeWidth="0.8" />
+      <line x1="98" y1="155" x2="114" y2="151" stroke="#CC7700" strokeWidth="0.8" />
+      <line x1="98" y1="155" x2="114" y2="158" stroke="#CC7700" strokeWidth="0.8" />
+      <line x1="98" y1="155" x2="112" y2="164" stroke="#CC7700" strokeWidth="0.8" />
+      {/* Khaki pants */}
+      <path d="M32 178 L30 212 L57 212 L60 196 L63 212 L90 212 L88 178 Z" fill="#C4A96A" />
+      <line x1="60" y1="178" x2="60" y2="212" stroke="#A88F52" strokeWidth="1.5" />
+      {/* Sneakers */}
+      <rect x="28" y="209" width="30" height="11" fill="#222" rx="3" />
+      <rect x="62" y="209" width="30" height="11" fill="#222" rx="3" />
+      {/* Shoe stripe detail */}
+      <rect x="30" y="213" width="26" height="4" fill="white" rx="1" opacity="0.35" />
+      <rect x="64" y="213" width="26" height="4" fill="white" rx="1" opacity="0.35" />
     </svg>
   );
 }

@@ -5,6 +5,11 @@ import { SimulatorDashboard } from "./components/SimulatorDashboard";
 
 export default function App() {
   const [screen, setScreen] = useState<"landing" | "simulator">("landing");
+  
+  // Lifted state for persistence
+  const [temperature, setTemperature] = useState(28);
+  const [humidity, setHumidity] = useState(55);
+  const [selectedSubject, setSelectedSubject] = useState(0);
 
   return (
     <div className="size-full relative overflow-hidden">
@@ -30,9 +35,18 @@ export default function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <SimulatorDashboard onBack={() => setScreen("landing")} />
+            <SimulatorDashboard 
+              onBack={() => setScreen("landing")} 
+              temperature={temperature}
+              setTemperature={setTemperature}
+              humidity={humidity}
+              setHumidity={setHumidity}
+              selectedSubject={selectedSubject}
+              setSelectedSubject={setSelectedSubject}
+            />
           </motion.div>
         )}
+
       </AnimatePresence>
     </div>
   );
