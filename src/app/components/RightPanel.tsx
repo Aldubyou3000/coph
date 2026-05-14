@@ -248,7 +248,7 @@ export function RightPanel({ heatIndex, temperature, humidity, subject }: RightP
           className="text-xs font-bold tracking-widest uppercase mb-2"
           style={{ color: "#00E5FF" }}
         >
-          Heat Index
+          Effective Heat Index
         </div>
 
         <motion.div
