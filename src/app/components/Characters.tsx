@@ -216,7 +216,7 @@ export function Student({ sad = false }: { sad?: boolean }) {
   );
 }
 
-export function StreetVendor() {
+export function StreetVendor({ sad = false }: { sad?: boolean }) {
   return (
     <svg viewBox="0 0 120 220" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
       {/* ── THE VENDOR (Behind) ── */}
@@ -227,7 +227,7 @@ export function StreetVendor() {
       <ellipse cx="88" cy="62" rx="2.5" ry="3" fill="white" />
       <circle cx="72.5" cy="62.5" r="1.5" fill="#1A0E00" />
       <circle cx="88.5" cy="62.5" r="1.5" fill="#1A0E00" />
-      <path d="M72 73 Q80 78 88 73" fill="none" stroke="#3D1A00" strokeWidth="1.8" strokeLinecap="round" />
+      <path d={sad ? "M72 73 Q80 66 88 73" : "M72 73 Q80 78 88 73"} fill="none" stroke="#3D1A00" strokeWidth="1.8" strokeLinecap="round" />
       <path d="M74 69 Q80 71.5 86 69" fill="#3D1A00" stroke="#3D1A00" strokeWidth="1.5" />
       <rect x="78" y="82" width="4" height="4" fill="#3D1A00" rx="1" />
       <rect x="74" y="83" width="12" height="9" fill="#C68642" rx="3" />

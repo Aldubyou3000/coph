@@ -7,7 +7,7 @@ export default function App() {
   const [screen, setScreen] = useState<"landing" | "simulator">("landing");
   
   // Lifted state for persistence
-  const [temperature, setTemperature] = useState(27);
+  const [temperature, setTemperature] = useState(20);
   const [humidity, setHumidity] = useState(55);
   const [selectedSubject, setSelectedSubject] = useState(4);
 
