@@ -61,8 +61,8 @@ export function CenterPanel({
   const effectiveHI   = heatIndex + (burden - tolerance);
   const stressFactor  = Math.max(0, (effectiveHI - 27) / 25); // 0.0 at 27C, 1.0 at 52C
 
-  // Progressive effect counts — now scaled by individual stressFactor
-  const sweatDrops         = Math.floor(stressFactor * 10);
+  // Progressive effect counts — scaled by individual stressFactor
+  const sweatDrops         = stressFactor >= 0.2 ? Math.min(Math.floor(stressFactor * 12), 8) : 0;
   const hazeCount          = Math.floor(stressFactor * 12);
   const particleCount      = Math.floor(stressFactor * 25);
   const emberCount         = isDangerPlus ? Math.floor(stressFactor * 20) : 0;
@@ -71,21 +71,29 @@ export function CenterPanel({
   const heartRateScale     = 1 + (stressFactor * 0.5); // Animation speed multiplier
 
   return (
-    <div className="flex flex-col gap-3 h-full" style={{ minWidth: 0 }}>
+    <div className="flex flex-col gap-3 h-full overflow-hidden" style={{ minWidth: 0 }}>
 
 
       {/* ── Risk Level Banner ───────────────────────────────────────────────── */}
       <motion.div
-        className="relative overflow-hidden rounded-2xl flex items-center justify-center py-4"
+        className="relative overflow-hidden rounded-2xl flex items-center justify-center py-4 flex-shrink-0"
         animate={{
           boxShadow: isExtreme
-            ? [`0 0 30px ${risk.glow}`, `0 0 60px ${risk.glow}`, `0 0 30px ${risk.glow}`]
-            : [`0 0 15px ${risk.glow}`, `0 0 30px ${risk.glow}`, `0 0 15px ${risk.glow}`],
+            ? [
+                `0 0 12px ${risk.glow}88, inset 0 0 24px ${risk.glow}55`,
+                `0 0 22px ${risk.glow}CC, inset 0 0 40px ${risk.glow}88`,
+                `0 0 12px ${risk.glow}88, inset 0 0 24px ${risk.glow}55`,
+              ]
+            : [
+                `0 0 8px  ${risk.glow}55, inset 0 0 12px ${risk.glow}33`,
+                `0 0 14px ${risk.glow}88, inset 0 0 22px ${risk.glow}55`,
+                `0 0 8px  ${risk.glow}55, inset 0 0 12px ${risk.glow}33`,
+              ],
         }}
         transition={{ duration: isExtreme ? 0.8 : 2, repeat: Infinity, ease: "easeInOut" }}
         style={{
           background: `linear-gradient(135deg, ${risk.bg}, rgba(0,0,0,0.4))`,
-          border:     `1px solid ${risk.color}33`,
+          border:     `1px solid ${risk.color}55`,
         }}
       >
         {/* Extreme danger pulse overlay */}
@@ -124,11 +132,12 @@ export function CenterPanel({
 
       {/* ── Character Display Area ──────────────────────────────────────────── */}
       <div
-        className="relative flex-1 rounded-2xl overflow-hidden flex items-end justify-center"
+        className="relative rounded-2xl overflow-hidden flex items-end justify-center"
         style={{
           background: "#0A1628",
           border:     `1px solid ${risk.color}22`,
-          minHeight:  200,
+          height:     "min(490px, 55vh)",
+          flexShrink: 0,
         }}
       >
         {/* SVG filter definition for heat distortion effect */}
@@ -162,52 +171,7 @@ export function CenterPanel({
           style={{ filter: (isExtCaution || isDangerPlus) ? "url(#heat-distortion)" : "none" }}
         >
           {/* 3D City Background */}
-          <CityScene temperature={heatIndex} />
-
-          {/* Character — z-[10] */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedSubject}
-              className="relative z-[10]"
-              style={{ width: 300, height: 460 }}
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                y: isExtreme ? [-shakeIntensity, shakeIntensity, -shakeIntensity] : [0, -6, 0],
-                x: isExtreme ? [-shakeIntensity, shakeIntensity, -shakeIntensity/2, shakeIntensity, -shakeIntensity] : 0,
-              }}
-              exit={{ opacity: 0, scale: 0.85 }}
-              transition={{
-                opacity: { duration: 0.3 },
-                scale: { duration: 0.3 },
-                y: { duration: (isExtreme ? 0.3 : 2.5) / heartRateScale, repeat: Infinity, ease: "easeInOut" },
-                x: isExtreme ? { duration: 0.15 / heartRateScale, repeat: Infinity } : {},
-              }}
-            >
-              {/* Heat Aura */}
-              {isCautionPlus && (
-                <motion.div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background: `radial-gradient(ellipse at 50% 40%,
-                      ${isExtreme ? 'rgba(255, 0, 30, 0.4)' : isDanger ? 'rgba(255, 68, 0, 0.3)' : isExtCaution ? 'rgba(255, 140, 0, 0.2)' : 'rgba(255, 215, 0, 0.1)'} 0%,
-                      ${isExtreme ? 'rgba(255, 30, 0, 0.25)' : isDanger ? 'rgba(255, 100, 0, 0.15)' : isExtCaution ? 'rgba(255, 180, 30, 0.08)' : 'rgba(255, 215, 0, 0.04)'} 35%,
-                      transparent 70%
-                    )`,
-                    filter: `blur(${isDangerPlus ? 10 : 5}px)`,
-                    transform: 'scale(1.3, 1.2)',
-                  }}
-                  animate={{
-                    opacity: isExtreme ? [0.7, 1, 0.7] : isDanger ? [0.5, 0.8, 0.5] : isExtCaution ? [0.3, 0.5, 0.3] : [0.2, 0.35, 0.2],
-                    scale: isExtreme ? [1.25, 1.45, 1.25] : isDanger ? [1.2, 1.35, 1.2] : [1.15, 1.25, 1.15],
-                  }}
-                  transition={{ duration: isExtreme ? 0.6 : isDanger ? 1 : 2, repeat: Infinity, ease: "easeInOut" }}
-                />
-              )}
-              <Char />
-            </motion.div>
-          </AnimatePresence>
+          <CityScene temperature={heatIndex} selectedSubject={selectedSubject} />
         </div>
 
         {/* ── Dry Air / Dust Shimmer ── (RH < 40%) */}
@@ -282,9 +246,13 @@ export function CenterPanel({
 
         {/* Risk colour tint overlay — z-[1] */}
         <motion.div
+          key={`tint-${risk.level}`}
           className="absolute inset-0 pointer-events-none z-[1]"
+          initial={{ opacity: 0 }}
           animate={{
-            opacity: isExtreme
+            opacity: isSafe
+              ? [0.03, 0.08, 0.03]
+              : isExtreme
               ? [0.2, 0.45, 0.2]
               : isDanger
               ? [0.15, 0.3, 0.15]
@@ -479,25 +447,38 @@ export function CenterPanel({
           <motion.div
             key={selectedSubject}
             className="relative z-[10]"
-            style={{ width: 300, height: 460 }}
+            style={{ width: "min(300px, 38%)", height: "min(460px, 90%)" }}
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{
               opacity: 1,
               scale:   1,
-              y:  isExtreme ? [-2, 2, -2]          : [0, -6, 0],
-              x:  isExtreme ? [-2, 2, -1, 2, -2]   : 0,
+              y:  isExtreme
+                ? [-shakeIntensity, shakeIntensity, -shakeIntensity]
+                : [0, -6, 0],
+              x:  isExtreme
+                ? [-shakeIntensity, shakeIntensity, -shakeIntensity / 2, shakeIntensity, -shakeIntensity]
+                : 0,
             }}
             exit={{ opacity: 0, scale: 0.85 }}
             transition={{
               opacity: { duration: 0.3 },
               scale:   { duration: 0.3 },
-              y: { duration: isExtreme ? 0.3 : 2.5, repeat: Infinity, ease: "easeInOut" },
-              x: isExtreme ? { duration: 0.15, repeat: Infinity } : {},
+              y: {
+                duration: isExtreme
+                  ? 0.3 / heartRateScale
+                  : 2.5 / heartRateScale,
+                repeat: Infinity,
+                ease: "easeInOut",
+              },
+              x: isExtreme
+                ? { duration: 0.15 / heartRateScale, repeat: Infinity }
+                : { duration: 0 },
             }}
           >
             {/* Heat aura — CAUTION+ (HI ≥ 27°C), intensity per threshold */}
             {isCautionPlus && (
               <motion.div
+                key={`aura-${risk.level}`}
                 className="absolute inset-0 pointer-events-none"
                 style={{
                   background: `radial-gradient(ellipse at 50% 40%,
@@ -522,6 +503,7 @@ export function CenterPanel({
                   filter:    `blur(${isDangerPlus ? 10 : 5}px)`,
                   transform: "scale(1.3, 1.2)",
                 }}
+                initial={{ opacity: 0 }}
                 animate={{
                   opacity: isExtreme
                     ? [0.7, 1, 0.7]
@@ -547,6 +529,7 @@ export function CenterPanel({
             {/* Heat shimmer ring — DANGER+ (HI ≥ 42°C) */}
             {isDangerPlus && (
               <motion.div
+                key={`ring-${risk.level}`}
                 className="absolute inset-0 pointer-events-none"
                 style={{
                   border:       `${isExtreme ? 3 : 2}px solid ${isExtreme ? "rgba(255,0,30,0.4)" : "rgba(255,100,0,0.25)"}`,
@@ -554,6 +537,7 @@ export function CenterPanel({
                   transform:    "scale(1.1)",
                   filter:       "blur(3px)",
                 }}
+                initial={{ scale: 1.1, opacity: 0 }}
                 animate={{ scale: [1.1, isExtreme ? 1.6 : 1.4, 1.1], opacity: [0.5, 0, 0.5] }}
                 transition={{
                   duration: isExtreme ? 1.2 : 2,
@@ -564,32 +548,43 @@ export function CenterPanel({
             )}
 
             {/* Character SVG */}
-            <Char />
+            <Char sad={isDangerPlus} />
 
-            {/* Sweat drops on character body */}
-            {Array.from({ length: sweatDrops }).map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute rounded-full"
-                style={{
-                  width:     5,
-                  height:    8,
-                  left:      `${20 + i * 12}%`,
-                  top:       "20%",
-                  background:"linear-gradient(to bottom, #7FEFFF, #00B4CC)",
-                  boxShadow: "0 0 4px rgba(0,229,255,0.6)",
-                }}
-                animate={{ y: [0, 80], opacity: [0.9, 0], scaleY: [1, 0.6] }}
-                transition={{ duration: 1.0, repeat: Infinity, delay: i * 0.22, ease: "easeIn" }}
-              />
-            ))}
+            {/* Sweat drops on character body — randomized positions, EXTREME CAUTION+ */}
+            {sweatDrops > 0 && Array.from({ length: sweatDrops }).map((_, i) => {
+              // Deterministic pseudo-random using prime offsets — stable across renders
+              const left = 12 + ((i * 41 + 7)  % 57);          // 12–69% — across torso
+              const top  =  6 + ((i * 29 + 13) % 44);          // 6–50% — varied height
+              const w    =  4 + (i * 3)  % 4;                  // 4–7px width
+              const h    =  7 + (i * 5)  % 7;                  // 7–13px height
+              const dur  =  0.65 + (i * 0.23) % 0.85;          // 0.65–1.5s duration
+              const del  =  (i * 0.19)   % 1.2;                // 0–1.2s stagger
+              const drop = 55 + (i * 17) % 40;                 // 55–95px fall distance
+              return (
+                <motion.div
+                  key={`sweat-body-${risk.level}-${i}`}
+                  className="absolute rounded-full pointer-events-none"
+                  style={{
+                    width:      w,
+                    height:     h,
+                    left:       `${left}%`,
+                    top:        `${top}%`,
+                    background: "linear-gradient(to bottom, #7FEFFF, #00B4CC)",
+                    boxShadow:  "0 0 4px rgba(0,229,255,0.7)",
+                  }}
+                  initial={{ y: 0, opacity: 0 }}
+                  animate={{ y: [0, drop], opacity: [0.95, 0], scaleY: [1, 0.55] }}
+                  transition={{ duration: dur, repeat: Infinity, delay: del, ease: "easeIn" }}
+                />
+              );
+            })}
 
             {/* Water pour — construction worker at DANGER+ (HI ≥ 42°C) */}
             {selectedSubject === 0 && isDangerPlus && (
               <div className="absolute" style={{ top: "8%", right: "10%" }}>
                 {Array.from({ length: isExtreme ? 8 : 4 }).map((_, i) => (
                   <motion.div
-                    key={i}
+                    key={`pour-${risk.level}-${i}`}
                     className="absolute rounded-full"
                     style={{
                       width:      isExtreme ? 4 : 3,
@@ -597,6 +592,7 @@ export function CenterPanel({
                       left:       i * 4,
                       background: "rgba(0,180,255,0.7)",
                     }}
+                    initial={{ y: 0, opacity: 0 }}
                     animate={{ y: [0, isExtreme ? 50 : 35], opacity: [0.8, 0] }}
                     transition={{ duration: isExtreme ? 0.5 : 0.7, repeat: Infinity, delay: i * 0.1 }}
                   />
@@ -604,17 +600,7 @@ export function CenterPanel({
               </div>
             )}
 
-            {/* Fan wave — Civilian at CAUTION+ */}
-            {selectedSubject === 4 && isCautionPlus && (
-              <motion.div
-                className="absolute"
-                style={{ top: "8%", left: "5%", fontSize: 20 }}
-                animate={{ rotate: [-15, 15, -15] }}
-                transition={{ duration: 0.4, repeat: Infinity, ease: "easeInOut" }}
-              >
-                💨
-              </motion.div>
-            )}
+
           </motion.div>
         </AnimatePresence>
 
@@ -649,7 +635,7 @@ export function CenterPanel({
       {/* ── DOLE Protocol Advisory Box ──────────────────────────────────────── */}
       <motion.div
         key={risk.level}
-        className="rounded-2xl p-4"
+        className="rounded-2xl p-4 flex-shrink-0 overflow-y-auto"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -657,6 +643,7 @@ export function CenterPanel({
           background: `linear-gradient(135deg, ${risk.bg}, rgba(10,22,40,0.9))`,
           border:     `1px solid ${risk.color}44`,
           boxShadow:  `0 0 20px ${risk.glow}44`,
+          maxHeight:  "min(220px, 26vh)",
         }}
       >
         <div className="flex items-start gap-3">

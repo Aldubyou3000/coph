@@ -88,11 +88,11 @@ export function SimulatorDashboard({
         </div>
       </div>
 
-      {/* Main Layout - Stacks on mobile, Side-by-side on large screens */}
-      <div className="relative z-10 flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-y-auto lg:overflow-hidden">
+      {/* Main Layout — stacks below 1280px, side-by-side on xl+ */}
+      <div className="relative z-10 flex-1 flex flex-col xl:flex-row gap-4 p-4 overflow-y-auto xl:overflow-hidden">
         
         {/* LEFT — Environment Controls */}
-        <div className="w-full lg:w-[24%] lg:overflow-y-auto lg:flex-shrink-0 order-2 lg:order-1">
+        <div className="w-full xl:w-[24%] xl:overflow-y-auto xl:flex-shrink-0 order-2 xl:order-1">
           <LeftPanel
             temperature={temperature} setTemperature={setTemperature}
             humidity={humidity} setHumidity={setHumidity}
@@ -101,7 +101,7 @@ export function SimulatorDashboard({
         </div>
 
         {/* CENTER — Visual Display */}
-        <div className="flex-1 min-h-[400px] lg:min-h-0 lg:overflow-hidden order-1 lg:order-2">
+        <div className="flex-1 min-h-[400px] xl:min-h-0 xl:overflow-hidden order-1 xl:order-2">
           <CenterPanel
             risk={risk}
             selectedSubject={selectedSubject}
@@ -112,7 +112,7 @@ export function SimulatorDashboard({
         </div>
 
         {/* RIGHT — Telemetry HUD */}
-        <div className="w-full lg:w-[26%] lg:overflow-y-auto lg:flex-shrink-0 order-3">
+        <div className="w-full xl:w-[26%] xl:overflow-y-auto xl:flex-shrink-0 order-3">
           <RightPanel 
             heatIndex={heatIndex} 
             temperature={temperature}

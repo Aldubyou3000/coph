@@ -3,6 +3,27 @@ import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { useGLTF, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
+// Per-character camera starting positions and targets
+// Index matches SUBJECTS: 0=Construction, 1=Vendor, 2=Enforcer, 3=Student, 4=Civilian
+const CAMERA_POSITIONS: [number, number, number][] = [
+  [-103.50,  511.85,  4840.26],  // 0: Construction Worker
+  [1485.42,  725.79,   372.65],  // 1: Street Vendor
+  [2003.43,  698.99,   901.56],  // 2: Traffic Enforcer
+  [3648.48,  691.55, -3868.29],  // 3: Student
+  [3208.06,  624.23,  3487.54],  // 4: Civilian
+];
+
+const CAMERA_TARGETS: [number, number, number][] = [
+  [-152.38, 1087.19,  -320.48],  // 0: Construction Worker
+  [1253.06,  716.36,   123.08],  // 1: Street Vendor
+  [ 387.72,  629.70,   301.69],  // 2: Traffic Enforcer
+  [-672.34,  298.51,   100.80],  // 3: Student
+  [1075.01, 1009.62, -1140.06],  // 4: Civilian
+];
+
+// Shared city center — set once by CityModel (used only as fallback)
+const cityCenter = new THREE.Vector3();
+
 // ──────────────────────────────────────────────────────
 // UTILS
 // ──────────────────────────────────────────────────────
@@ -170,6 +191,7 @@ function CityModel() {
     const size = new THREE.Vector3();
     box.getCenter(center);
     box.getSize(size);
+    cityCenter.copy(center); // share with CameraController
 
     const maxDim = Math.max(size.x, size.y, size.z);
     camera.position.set(
@@ -188,10 +210,42 @@ function CityModel() {
 }
 
 // ──────────────────────────────────────────────────────
+// CAMERA CONTROLLER — snaps to per-character position on subject change
+// OrbitControls remains freely moveable after the snap.
+// ──────────────────────────────────────────────────────
+function CameraController({
+  selectedSubject,
+  orbitRef,
+}: {
+  selectedSubject: number;
+  orbitRef: React.RefObject<any>;
+}) {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    const pos = CAMERA_POSITIONS[selectedSubject];
+    const tgt = CAMERA_TARGETS[selectedSubject];
+    if (!pos || !tgt) return;
+
+    camera.position.set(pos[0], pos[1], pos[2]);
+    camera.lookAt(tgt[0], tgt[1], tgt[2]);
+    camera.updateProjectionMatrix();
+
+    if (orbitRef.current) {
+      orbitRef.current.target.set(tgt[0], tgt[1], tgt[2]);
+      orbitRef.current.update();
+    }
+  }, [selectedSubject, camera, orbitRef]);
+
+  return null;
+}
+
+// ──────────────────────────────────────────────────────
 // EXPORTED COMPONENT
 // ──────────────────────────────────────────────────────
 
-export function CityScene({ temperature }: { temperature: number }) {
+export function CityScene({ temperature, selectedSubject }: { temperature: number; selectedSubject: number }) {
+  const orbitRef = useRef<any>(null);
   return (
     <Canvas
       shadows
@@ -204,17 +258,23 @@ export function CityScene({ temperature }: { temperature: number }) {
       <Suspense fallback={null}>
         <CityModel />
       </Suspense>
-      {/* Still draggable — logs position to console so you can find your angle */}
+      <CameraController selectedSubject={selectedSubject} orbitRef={orbitRef} />
+      {/* Freely draggable — camera snaps on subject change, then you can orbit freely */}
       <OrbitControls
+        ref={orbitRef}
         enableZoom={true}
         enablePan={true}
         enableRotate={true}
         autoRotate={false}
         onChange={(e) => {
-          const cam = e?.target.object;
-          if (cam) {
+          const ctrl = e?.target;
+          const cam  = ctrl?.object;
+          if (cam && ctrl) {
+            const p = cam.position;
+            const t = ctrl.target;
             console.log(
-              `Camera: [${cam.position.x.toFixed(2)}, ${cam.position.y.toFixed(2)}, ${cam.position.z.toFixed(2)}]`
+              `Camera: [${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)}]  ` +
+              `Target: [${t.x.toFixed(2)}, ${t.y.toFixed(2)}, ${t.z.toFixed(2)}]`
             );
           }
         }}

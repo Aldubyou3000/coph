@@ -42,6 +42,83 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ── Custom horizontal slider (cross-browser) ─────────────────────────────────
+function HorizontalSlider({
+  min, max, value, onChange,
+}: {
+  min: number; max: number; value: number; onChange: (v: number) => void;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+
+  const update = useCallback(
+    (clientX: number) => {
+      if (!trackRef.current) return;
+      const r   = trackRef.current.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+      onChange(Math.round(min + pct * (max - min)));
+    },
+    [min, max, onChange]
+  );
+
+  useEffect(() => {
+    const move = (e: PointerEvent) => { if (dragging.current) update(e.clientX); };
+    const up   = ()              => { dragging.current = false; };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup",   up);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup",   up);
+    };
+  }, [update]);
+
+  const pct = (value - min) / (max - min);
+
+  return (
+    <div
+      ref={trackRef}
+      className="relative w-full select-none cursor-pointer"
+      style={{ height: 28, display: "flex", alignItems: "center" }}
+      onPointerDown={(e) => {
+        dragging.current = true;
+        update(e.clientX);
+        e.preventDefault();
+      }}
+    >
+      {/* Track — background */}
+      <div
+        className="absolute inset-x-0 rounded-full"
+        style={{ height: 6, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.1)" }}
+      />
+      {/* Track — filled portion */}
+      <div
+        className="absolute left-0 rounded-full"
+        style={{
+          height:     6,
+          width:      `${pct * 100}%`,
+          top:        "50%",
+          transform:  "translateY(-50%)",
+          background: "linear-gradient(90deg, #FFD700, #FF6B00, #FF0033)",
+        }}
+      />
+      {/* Thumb */}
+      <div
+        className="absolute rounded-full"
+        style={{
+          width:      18,
+          height:     18,
+          left:       `calc(${pct * 100}% - 9px)`,
+          top:        "50%",
+          transform:  "translateY(-50%)",
+          background: "white",
+          boxShadow:  "0 0 10px rgba(255,140,0,0.9), 0 2px 4px rgba(0,0,0,0.5)",
+          transition: "box-shadow 0.15s",
+        }}
+      />
+    </div>
+  );
+}
+
 // ── Temperature Control (circular gauge + slider + MANUAL INPUT) ──────────────
 /**
  * The circular °C value is now clickable. Clicking it switches the display
@@ -177,16 +254,14 @@ function TemperatureControl({
           </div>
         </div>
 
-        <input
-          type="range"
+        <HorizontalSlider
           min={20}
           max={58}
           value={temperature}
-          onChange={(e) => {
+          onChange={(v) => {
             setEditing(false);
-            setTemperature(Number(e.target.value));
+            setTemperature(v);
           }}
-          className="w-full cursor-pointer"
         />
         <div className="flex justify-between w-full text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
           <span>20°C</span>

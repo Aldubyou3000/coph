@@ -11,7 +11,7 @@
 //   Civilian (NEW)      — casual t-shirt, khaki pants, hand fan
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function ConstructionWorker() {
+export function ConstructionWorker({ sad = false }: { sad?: boolean }) {
   return (
     <svg viewBox="0 0 120 220" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
       {/* Hard Hat Brim */}
@@ -30,7 +30,7 @@ export function ConstructionWorker() {
       <circle cx="68.5" cy="61.5" r="1.5" fill="#222" />
       <circle cx="53" cy="61" r="0.6" fill="white" />
       <circle cx="69" cy="61" r="0.6" fill="white" />
-      <path d="M52 72 Q60 78 68 72" fill="none" stroke="#333" strokeWidth="1.8" strokeLinecap="round" />
+      <path d={sad ? "M52 72 Q60 66 68 72" : "M52 72 Q60 78 68 72"} fill="none" stroke="#333" strokeWidth="1.8" strokeLinecap="round" />
       {/* Ears */}
       <ellipse cx="41" cy="64" rx="4" ry="5" fill="#D4956A" />
       <ellipse cx="79" cy="64" rx="4" ry="5" fill="#D4956A" />
@@ -52,7 +52,7 @@ export function ConstructionWorker() {
       <ellipse cx="104" cy="172" rx="7" ry="5" fill="#7B5E3A" />
       {/* Jeans */}
       <path d="M30 175 L28 210 L55 210 L60 188 L65 210 L92 210 L90 175 Z" fill="#2B4A8F" />
-      <line x1="60" y1="175" x2="60" y2="210" stroke="#1E3570" strokeWidth="1.5" />
+      <line x1="60" y1="175" x2="60" y2="188" stroke="#1E3570" strokeWidth="1.5" />
       {/* Boots */}
       <rect x="26" y="207" width="30" height="13" fill="#2C1810" rx="3" />
       <rect x="64" y="207" width="30" height="13" fill="#2C1810" rx="3" />
@@ -65,7 +65,7 @@ export function ConstructionWorker() {
   );
 }
 
-export function TrafficEnforcer() {
+export function TrafficEnforcer({ sad = false }: { sad?: boolean }) {
   return (
     <svg viewBox="0 0 120 220" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
       {/* Cap */}
@@ -93,7 +93,7 @@ export function TrafficEnforcer() {
       <circle cx="68.5" cy="62.5" r="1.4" fill="#2A1A0E" />
       <circle cx="53" cy="62" r="0.5" fill="white" />
       <circle cx="69" cy="62" r="0.5" fill="white" />
-      <path d="M53 73 Q60 77 67 73" fill="none" stroke="#6B3A2A" strokeWidth="1.6" strokeLinecap="round" />
+      <path d={sad ? "M53 73 Q60 69 67 73" : "M53 73 Q60 77 67 73"} fill="none" stroke="#6B3A2A" strokeWidth="1.6" strokeLinecap="round" />
       {/* Earrings */}
       <circle cx="42" cy="68" r="2" fill="#FFD700" />
       <circle cx="78" cy="68" r="2" fill="#FFD700" />
@@ -124,7 +124,7 @@ export function TrafficEnforcer() {
       <line x1="103" y1="165" x2="103" y2="178" stroke="#999" strokeWidth="1.5" />
       {/* Navy Pants */}
       <path d="M32 175 L30 210 L56 210 L60 190 L64 210 L90 210 L88 175 Z" fill="#1A2F6A" />
-      <line x1="60" y1="175" x2="60" y2="210" stroke="#142259" strokeWidth="1.5" />
+      <line x1="60" y1="175" x2="60" y2="190" stroke="#142259" strokeWidth="1.5" />
       {/* Shoes */}
       <rect x="28" y="207" width="29" height="12" fill="#111" rx="3" />
       <rect x="62" y="207" width="29" height="12" fill="#111" rx="3" />
@@ -132,11 +132,11 @@ export function TrafficEnforcer() {
   );
 }
 
-export function Student() {
+export function Student({ sad = false }: { sad?: boolean }) {
   return (
     <svg viewBox="0 0 120 220" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-      {/* Hair */}
-      <path d="M42 48 Q42 22 60 20 Q78 22 78 48 L76 52 Q60 36 44 52 Z" fill="#1A1A1A" />
+      {/* Hair — short neat cut */}
+      <path d="M42 63 Q41 40 60 38 Q79 40 78 63 Q68 53 60 52 Q52 53 42 63 Z" fill="#1A1A1A" />
       {/* Head */}
       <ellipse cx="60" cy="65" rx="18" ry="21" fill="#FFCE9E" />
       <ellipse cx="60" cy="79" rx="12" ry="7" fill="#E8A87C" opacity="0.3" />
@@ -147,7 +147,7 @@ export function Student() {
       <circle cx="68.5" cy="62.5" r="1.5" fill="#222" />
       <circle cx="53" cy="62" r="0.6" fill="white" />
       <circle cx="69" cy="62" r="0.6" fill="white" />
-      <path d="M52 73 Q60 80 68 73" fill="none" stroke="#333" strokeWidth="1.8" strokeLinecap="round" />
+      <path d={sad ? "M52 73 Q60 66 68 73" : "M52 73 Q60 80 68 73"} fill="none" stroke="#333" strokeWidth="1.8" strokeLinecap="round" />
       {/* Rosy cheeks */}
       <ellipse cx="46" cy="70" rx="5" ry="3" fill="#FF9090" opacity="0.35" />
       <ellipse cx="74" cy="70" rx="5" ry="3" fill="#FF9090" opacity="0.35" />
@@ -158,43 +158,65 @@ export function Student() {
       <rect x="54" y="84" width="12" height="9" fill="#FFCE9E" rx="3" />
       {/* White Polo Shirt */}
       <path d="M28 93 L22 175 L98 175 L92 93 Z" fill="#F5F5F5" stroke="#DDD" strokeWidth="1" />
-      {/* Collar with blue accent */}
-      <path d="M48 93 L54 101 L60 93 L66 101 L72 93" fill="none" stroke="#2B4A8F" strokeWidth="2.5" />
-      {/* Pocket */}
-      <rect x="64" y="108" width="14" height="12" fill="#EEE" stroke="#CCC" strokeWidth="1" rx="1" />
-      {/* DepEd patch */}
-      <circle cx="44" cy="110" r="7" fill="#2B4A8F" opacity="0.8" />
-      <text x="44" y="113" textAnchor="middle" fill="white" fontSize="5" fontWeight="bold">DepEd</text>
-      {/* Arms - white polo */}
-      <path d="M28 93 L14 160 Q12 167 18 169 L26 169 L36 105 Z" fill="#F0F0F0" />
-      <path d="M92 93 L106 160 Q108 167 102 169 L94 169 L84 105 Z" fill="#F0F0F0" />
+      {/* Collar */}
+      <path d="M48 93 L54 101 L60 93 L66 101 L72 93" fill="none" stroke="#111111" strokeWidth="2.5" />
+      {/* OLFU patch — right chest, circular */}
+      <circle cx="72" cy="113" r="7" fill="#1A8A3A" opacity="0.9" />
+      <text x="72" y="116" textAnchor="middle" fill="white" fontSize="3.5" fontWeight="bold">olfu</text>
+
+      {/* Green V-lanyard — goes around neck, hangs to portrait ID */}
+      <line x1="55" y1="94" x2="60" y2="120" stroke="#22AA44" strokeWidth="2" strokeLinecap="round" />
+      <line x1="65" y1="94" x2="60" y2="120" stroke="#22AA44" strokeWidth="2" strokeLinecap="round" />
+
+      {/* Portrait ID card — attached at base of lanyard V */}
+      {/* Card body */}
+      <rect x="51" y="120" width="18" height="22" fill="#FAFAFA" stroke="#BBBBBB" strokeWidth="0.8" rx="1.5" />
+      {/* Green header bar */}
+      <rect x="51" y="120" width="18" height="6.5" fill="#1A8A3A" rx="1.5" />
+      <rect x="51" y="124" width="18" height="2.5" fill="#1A8A3A" />
+      <text x="60" y="125.5" textAnchor="middle" fill="white" fontSize="3.5" fontWeight="bold">OLFU</text>
+      {/* Photo area */}
+      <rect x="54.5" y="128" width="11" height="9" fill="#E0ECEC" rx="1" />
+      {/* Face silhouette in photo */}
+      <ellipse cx="60" cy="131.5" rx="3" ry="3.5" fill="#FFCE9E" />
+      {/* Name lines */}
+      <rect x="53" y="139" width="14" height="1.5" fill="#DDDDDD" rx="0.5" />
+      <rect x="55" y="141.5" width="10" height="1" fill="#EEEEEE" rx="0.5" />
+
+      {/* Left sleeve (short) */}
+      <path d="M28 93 L22 115 L33 115 L36 105 Z" fill="#F0F0F0" />
+      {/* Left forearm — skin */}
+      <path d="M22 115 L14 160 Q12 167 18 169 L26 169 L33 115 Z" fill="#FFCE9E" />
+      {/* Right sleeve (short) */}
+      <path d="M92 93 L98 115 L87 115 L84 105 Z" fill="#F0F0F0" />
+      {/* Right forearm — skin */}
+      <path d="M98 115 L106 160 Q108 167 102 169 L94 169 L87 115 Z" fill="#FFCE9E" />
       {/* Hands */}
       <ellipse cx="16" cy="171" rx="6" ry="5" fill="#FFCE9E" />
       <ellipse cx="104" cy="171" rx="6" ry="5" fill="#FFCE9E" />
-      {/* Navy Blue Shorts */}
-      <path d="M30 175 L28 208 L56 208 L60 192 L64 208 L92 208 L90 175 Z" fill="#1A2F6A" />
-      <line x1="60" y1="175" x2="60" y2="208" stroke="#142259" strokeWidth="1.5" />
+      {/* Shorts */}
+      <path d="M30 175 L28 208 L56 208 L60 192 L64 208 L92 208 L90 175 Z" fill="#1A1A1A" />
+      <line x1="60" y1="175" x2="60" y2="192" stroke="#0A0A0A" strokeWidth="1.5" />
       {/* White Socks */}
       <rect x="28" y="205" width="28" height="10" fill="#EEE" rx="2" />
       <rect x="64" y="205" width="28" height="10" fill="#EEE" rx="2" />
       {/* Rubber Shoes */}
       <rect x="26" y="210" width="32" height="10" fill="#111" rx="3" />
       <rect x="62" y="210" width="32" height="10" fill="#111" rx="3" />
-      <rect x="28" y="214" width="28" height="4" fill="#FFF" rx="1" opacity="0.3" />
-      <rect x="64" y="214" width="28" height="4" fill="#FFF" rx="1" opacity="0.3" />
-      {/* Red Backpack */}
-      <rect x="84" y="95" width="22" height="32" fill="#CC2200" rx="4" />
-      <rect x="86" y="97" width="18" height="14" fill="#AA1800" rx="2" />
-      <rect x="88" y="113" width="14" height="12" fill="#BB1F00" rx="2" />
-      <circle cx="95" cy="124" r="2.5" fill="#FF6644" />
-      {/* Backpack straps */}
-      <path d="M84 95 Q82 85 60 86" fill="none" stroke="#8B1400" strokeWidth="3" />
-      <path d="M88 95 Q86 90 64 91" fill="none" stroke="#8B1400" strokeWidth="2" />
+      {/* Laces — left shoe */}
+      <line x1="30" y1="212" x2="54" y2="212" stroke="white" strokeWidth="0.9" opacity="0.55" />
+      <line x1="30" y1="214" x2="54" y2="214" stroke="white" strokeWidth="0.9" opacity="0.55" />
+      <line x1="30" y1="216" x2="54" y2="216" stroke="white" strokeWidth="0.9" opacity="0.55" />
+      {/* Laces — right shoe */}
+      <line x1="66" y1="212" x2="90" y2="212" stroke="white" strokeWidth="0.9" opacity="0.55" />
+      <line x1="66" y1="214" x2="90" y2="214" stroke="white" strokeWidth="0.9" opacity="0.55" />
+      <line x1="66" y1="216" x2="90" y2="216" stroke="white" strokeWidth="0.9" opacity="0.55" />
+
     </svg>
   );
 }
 
-export function StreetVendor() {
+export function StreetVendor({ sad = false }: { sad?: boolean }) {
   return (
     <svg viewBox="0 0 120 220" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
       {/* Cap */}
@@ -214,7 +236,7 @@ export function StreetVendor() {
       <circle cx="68.5" cy="62.5" r="1.5" fill="#1A0E00" />
       <circle cx="53" cy="62" r="0.6" fill="white" />
       <circle cx="69" cy="62" r="0.6" fill="white" />
-      <path d="M51 73 Q60 80 69 73" fill="none" stroke="#1A0E00" strokeWidth="1.8" strokeLinecap="round" />
+      <path d={sad ? "M51 73 Q60 66 69 73" : "M51 73 Q60 80 69 73"} fill="none" stroke="#1A0E00" strokeWidth="1.8" strokeLinecap="round" />
       {/* Mustache */}
       <path d="M52 69 Q56 71.5 60 69.5 Q64 71.5 68 69" fill="#3D1A00" />
       {/* Neck */}
@@ -223,8 +245,9 @@ export function StreetVendor() {
       <path d="M32 93 L26 175 L94 175 L88 93 Z" fill="#E8E0D0" />
       {/* White Apron */}
       <path d="M42 93 L36 175 L84 175 L78 93 Z" fill="#FAFAFA" stroke="#DDD" strokeWidth="1" />
-      {/* Apron strings at top */}
-      <path d="M50 93 L60 81 L70 93" fill="none" stroke="#CCC" strokeWidth="2" />
+      {/* Apron top — strap goes behind neck, only side tabs visible */}
+      <rect x="42" y="90" width="7" height="5" fill="#E0E0E0" rx="1.5" />
+      <rect x="71" y="90" width="7" height="5" fill="#E0E0E0" rx="1.5" />
       {/* Apron pocket */}
       <rect x="48" y="140" width="24" height="16" fill="#EEE" stroke="#CCC" strokeWidth="1" rx="2" />
       {/* Arms */}
@@ -235,7 +258,7 @@ export function StreetVendor() {
       <ellipse cx="101" cy="169" rx="7" ry="5.5" fill="#B87030" />
       {/* Dark pants */}
       <path d="M34 175 L32 210 L58 210 L60 192 L62 210 L88 210 L86 175 Z" fill="#3D2B1A" />
-      <line x1="60" y1="175" x2="60" y2="210" stroke="#2A1A0A" strokeWidth="1.5" />
+      <line x1="60" y1="175" x2="60" y2="192" stroke="#2A1A0A" strokeWidth="1.5" />
       {/* Sandals */}
       <rect x="30" y="207" width="29" height="11" fill="#5C3A1A" rx="3" />
       <rect x="61" y="207" width="29" height="11" fill="#5C3A1A" rx="3" />
@@ -263,17 +286,19 @@ export function StreetVendor() {
  * Holds a hand fan (culturally relevant heat-coping accessory in PH).
  * The fan can be animated by CenterPanel when heat ≥ CAUTION.
  */
-export function Civilian() {
+export function Civilian({ sad = false }: { sad?: boolean }) {
   return (
     <svg viewBox="0 0 120 220" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-      {/* Short hair */}
-      <path d="M42 55 Q40 32 60 28 Q80 32 78 55 L75 56 Q60 40 45 56 Z" fill="#8B5E3C" />
       {/* Head */}
       <ellipse cx="60" cy="68" rx="19" ry="22" fill="#FDBF94" />
       <ellipse cx="60" cy="82" rx="13" ry="7" fill="#E8A07A" opacity="0.3" />
       {/* Ears */}
       <ellipse cx="41" cy="68" rx="4" ry="5" fill="#F0A87A" />
       <ellipse cx="79" cy="68" rx="4" ry="5" fill="#F0A87A" />
+      {/* Hair — drawn after head+ears so it’s visible on top as a crown cap */}
+      <path d="M38 66 Q38 46 60 44 Q82 46 82 66 Q72 56 62 55 Q58 54 48 56 Q42 59 38 66 Z" fill="#8B5E3C" />
+      {/* Side part line */}
+      <path d="M60 44 Q61 51 60 55" fill="none" stroke="rgba(80,40,10,0.4)" strokeWidth="1.5" strokeLinecap="round" />
       {/* Eyes */}
       <ellipse cx="52" cy="65" rx="2.8" ry="3" fill="white" />
       <ellipse cx="68" cy="65" rx="2.8" ry="3" fill="white" />
@@ -282,7 +307,7 @@ export function Civilian() {
       <circle cx="53" cy="65" r="0.6" fill="white" />
       <circle cx="69" cy="65" r="0.6" fill="white" />
       {/* Smile */}
-      <path d="M53 76 Q60 82 67 76" fill="none" stroke="#555" strokeWidth="1.8" strokeLinecap="round" />
+      <path d={sad ? "M53 76 Q60 70 67 76" : "M53 76 Q60 82 67 76"} fill="none" stroke="#555" strokeWidth="1.8" strokeLinecap="round" />
       {/* Neck */}
       <rect x="54" y="88" width="12" height="9" fill="#FDBF94" rx="3" />
       {/* Light blue casual T-shirt */}
@@ -308,7 +333,7 @@ export function Civilian() {
       <line x1="98" y1="155" x2="112" y2="164" stroke="#CC7700" strokeWidth="0.8" />
       {/* Khaki pants */}
       <path d="M32 178 L30 212 L57 212 L60 196 L63 212 L90 212 L88 178 Z" fill="#C4A96A" />
-      <line x1="60" y1="178" x2="60" y2="212" stroke="#A88F52" strokeWidth="1.5" />
+      <line x1="60" y1="178" x2="60" y2="196" stroke="#A88F52" strokeWidth="1.5" />
       {/* Sneakers */}
       <rect x="28" y="209" width="30" height="11" fill="#222" rx="3" />
       <rect x="62" y="209" width="30" height="11" fill="#222" rx="3" />
