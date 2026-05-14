@@ -7,9 +7,9 @@ export default function App() {
   const [screen, setScreen] = useState<"landing" | "simulator">("landing");
   
   // Lifted state for persistence
-  const [temperature, setTemperature] = useState(28);
+  const [temperature, setTemperature] = useState(27);
   const [humidity, setHumidity] = useState(55);
-  const [selectedSubject, setSelectedSubject] = useState(0);
+  const [selectedSubject, setSelectedSubject] = useState(4);
 
   return (
     <div className="size-full relative overflow-hidden">

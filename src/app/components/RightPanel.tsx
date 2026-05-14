@@ -97,13 +97,16 @@ function FormulaInfo({
   temperature,
   humidity,
   heatIndex,
+  subject,
 }: {
   temperature: number;
   humidity:    number;
   heatIndex:   number;
+  subject:     any;
 }) {
   const formulaActive = temperature >= 27 && humidity >= 25;
   const delta         = heatIndex - temperature;
+  const effectiveHI   = heatIndex + (subject.burden - subject.tolerance);
 
   return (
     <div
@@ -138,6 +141,13 @@ function FormulaInfo({
             : "RH < 25% — evaporation too efficient"}
         </div>
       )}
+
+      <div className="flex justify-between items-center mb-1">
+        <span style={{ color: "rgba(255,255,255,0.45)" }}>Environmental HI</span>
+        <span className="font-bold" style={{ color: "rgba(0,229,255,0.8)" }}>
+          {heatIndex.toFixed(1)}°C
+        </span>
+      </div>
 
       <div className="flex justify-between items-center mb-1">
         <span style={{ color: "rgba(255,255,255,0.45)" }}>Feels hotter by</span>
@@ -214,6 +224,7 @@ export function RightPanel({ heatIndex, temperature, humidity, subject }: RightP
   const hiF = heatIndex * 9 / 5 + 32;
   const hiK = heatIndex + 273.15;
   const hiR = hiF + 459.67;
+  const effectiveHI = heatIndex + (subject.burden - subject.tolerance);
 
   return (
     <div className="flex flex-col gap-3 h-full overflow-y-auto pr-1" style={{ minWidth: 0 }}>
@@ -241,7 +252,7 @@ export function RightPanel({ heatIndex, temperature, humidity, subject }: RightP
         </div>
 
         <motion.div
-          key={Math.round(heatIndex * 10)}
+          key={Math.round(effectiveHI * 10)}
           className="font-black"
           initial={{ scale: 1.08 }}
           animate={{ scale: 1 }}
@@ -251,7 +262,7 @@ export function RightPanel({ heatIndex, temperature, humidity, subject }: RightP
             textShadow: "0 0 25px rgba(255,107,0,0.8), 0 0 50px rgba(255,107,0,0.4)",
           }}
         >
-          {heatIndex.toFixed(1)}
+          {effectiveHI.toFixed(1)}
           <span className="text-2xl" style={{ color: "rgba(255,107,0,0.7)" }}>°C</span>
         </motion.div>
 
@@ -259,6 +270,7 @@ export function RightPanel({ heatIndex, temperature, humidity, subject }: RightP
           temperature={temperature}
           humidity={humidity}
           heatIndex={heatIndex}
+          subject={subject}
         />
       </div>
 
