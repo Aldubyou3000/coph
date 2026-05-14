@@ -221,10 +221,10 @@ function PageasaLegend() {
 
 // ── Main Export ───────────────────────────────────────────────────────────────
 export function RightPanel({ heatIndex, temperature, humidity, subject }: RightPanelProps) {
-  const hiF = heatIndex * 9 / 5 + 32;
-  const hiK = heatIndex + 273.15;
-  const hiR = hiF + 459.67;
   const effectiveHI = heatIndex + (subject.burden - subject.tolerance);
+  const hiF = effectiveHI * 9 / 5 + 32;
+  const hiK = effectiveHI + 273.15;
+  const hiR = hiF + 459.67;
 
   return (
     <div className="flex flex-col gap-3 h-full overflow-y-auto pr-1" style={{ minWidth: 0 }}>
@@ -292,7 +292,7 @@ export function RightPanel({ heatIndex, temperature, humidity, subject }: RightP
           <StatBox label="Fahrenheit" value={`${hiF.toFixed(1)}°F`} />
           <StatBox label="Kelvin"     value={`${hiK.toFixed(1)} K`} />
           <StatBox label="Rankine"    value={`${hiR.toFixed(1)}°R`} />
-          <StatBox label="Ambient"    value={`${temperature}°C`}    />
+          <StatBox label="Ambient HI" value={`${(heatIndex * 9 / 5 + 32).toFixed(1)}°F`}    />
         </div>
       </div>
 
